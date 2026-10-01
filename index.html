@@ -128,6 +128,10 @@ footer .row{display:flex;flex-wrap:wrap;gap:16px;justify-content:space-between}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 @media (max-width:640px){.row2{grid-template-columns:1fr}}
 .warn{margin:0;font-size:14px;color:var(--warn)}
+.hp{position:absolute;left:-9999px;opacity:0;width:1px;height:1px}
+.policy p{margin:0 0 8px;font-size:14px;color:var(--muted)}
+.policy b{color:var(--text)}
+.sendmsg.ok{color:var(--ok)}
 .biz{margin-top:14px;font-size:12px;display:flex;flex-wrap:wrap;gap:4px 14px}
 .biz:empty{display:none}
 .estimate{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:6px 16px;background:var(--surface-2);border-radius:12px;padding:14px 16px}
@@ -155,14 +159,18 @@ window.LINKS = {
 };
 // 전자상거래법 사업자 정보 표시 (통신판매업자 필수). 비워 둔 항목은 표시되지 않습니다
 window.BIZ = {
-  name: "",      // 상호
-  ceo: "",       // 대표자
-  regNo: "",     // 사업자등록번호  예) 123-45-67890
+  brand: "Closet Kit", // 서비스명
+  name: "스타라이트 TCG", // 상호 (등록 상호)
+  ceo: "정환동",  // 대표자
+  regNo: "413-05-66203", // 사업자등록번호
   mailOrderNo: "", // 통신판매업 신고번호  예) 제2026-서울강남-0000호
   address: "",   // 사업장 주소
   phone: "",     // 전화번호
   email: ""      // 이메일
 };
+// 사이트 문의/신청서 → 판매자 이메일로 전달 (Web3Forms 무료). 이메일 주소는 사이트에 노출되지 않습니다
+// web3forms.com 에서 받을 이메일을 입력하면 Access Key 가 메일로 옵니다 → 여기에 붙여넣기
+window.FORM_KEY = "";
 </script>
 
 <header class="top">
@@ -174,6 +182,7 @@ window.BIZ = {
       <a href="#order"><span data-ko>신청서</span><span data-ja>依頼</span></a>
       <a href="#tool"><span data-ko>무료 툴</span><span data-ja>無料ツール</span></a>
       <a href="#faq">FAQ</a>
+      <a href="#contact"><span data-ko>문의</span><span data-ja>お問い合わせ</span></a>
     </nav>
     <div class="lang" role="group" aria-label="language">
       <button type="button" data-lang="ko" aria-pressed="true">KO</button>
@@ -293,12 +302,12 @@ window.BIZ = {
 
   <section id="order">
     <h2 data-ko>신청서</h2><h2 data-ja>依頼フォーム</h2>
-    <p class="sub" data-ko>작성하면 예상 금액이 바로 계산됩니다. 마지막에 <b>신청서 복사</b>를 눌러 오픈채팅이나 디스코드로 보내 주세요. 사이트에는 아무 정보도 저장되지 않습니다.</p>
-    <p class="sub" data-ja>入力すると概算が自動計算されます。最後に<b>コピー</b>して Discord 等で送ってください。サイトには何も保存されません。</p>
+    <p class="sub" data-ko>작성하면 예상 금액이 바로 계산됩니다. <b>신청서 만들기 → 신청서 보내기</b>를 누르면 작업자에게 바로 전달되고, 적어 주신 연락처로 답장드립니다.</p>
+    <p class="sub" data-ja>入力すると概算が自動計算されます。<b>作成 → 送信</b>で作業者に届き、ご連絡先に返信します。</p>
     <form id="orderForm" class="card form" autocomplete="off" onsubmit="return false">
       <div class="row2">
         <label><span data-ko>닉네임</span><span data-ja>お名前（ニックネーム）</span> *<input name="nick" required maxlength="40"></label>
-        <label><span data-ko>답장받을 연락처 (디스코드 ID / 오픈채팅 닉네임 / 메일)</span><span data-ja>連絡先（Discord ID / メール）</span> *<input name="contact" required maxlength="80"></label>
+        <label><span data-ko>답장받을 이메일 (또는 디스코드 ID)</span><span data-ja>連絡先（Discord ID / メール）</span> *<input name="contact" required maxlength="80"></label>
       </div>
       <label><span data-ko>아바타</span><span data-ja>アバター</span> *
         <select name="avatar" required>
@@ -323,8 +332,9 @@ window.BIZ = {
       </fieldset>
       <label><span data-ko>요청사항 (기본으로 입을 옷, 메뉴 이름, 원하는 셰이프키 등)</span><span data-ja>ご要望（デフォルト衣装、メニュー名など）</span><textarea name="note" rows="3" maxlength="1000"></textarea></label>
       <fieldset class="agree">
-        <label class="pick"><input type="checkbox" name="a1" required> <span data-ko>상호구매 원칙에 동의하며, 위 아바타·옷의 <b>BOOTH 구매 내역 캡처</b>를 함께 보내겠습니다.</span><span data-ja>相互購入の原則に同意し、<b>BOOTH購入履歴のスクショ</b>を一緒に送ります。</span></label>
+        <label class="pick"><input type="checkbox" name="a1" required> <span data-ko>상호구매 원칙에 동의하며, 답장을 받으면 위 아바타·옷의 <b>BOOTH 구매 내역 캡처</b>를 보내겠습니다.</span><span data-ja>相互購入の原則に同意し、返信後に<b>BOOTH購入履歴のスクショ</b>を送ります。</span></label>
         <label class="pick"><input type="checkbox" name="a2" required> <span data-ko>VRChat 비밀번호는 보내지 않으며, 업로드는 제가 직접 합니다.</span><span data-ja>パスワードは送らず、アップロードは自分で行います。</span></label>
+        <label class="pick"><input type="checkbox" name="a4" required> <span data-ko><a href="#privacy">개인정보 수집·이용</a>(닉네임·연락처·신청 내용, 견적과 작업 연락 목적)에 동의합니다.</span><span data-ja><a href="#privacy">個人情報の収集・利用</a>に同意します。</span></label>
         <label class="pick"><input type="checkbox" name="a3" required> <span data-ko>아래 <a href="#terms">결제·취소·환불 규정</a>을 확인했습니다.</span><span data-ja>下の<a href="#terms">お支払い・キャンセル規定</a>を確認しました。</span></label>
       </fieldset>
       <div class="estimate">
@@ -338,12 +348,14 @@ window.BIZ = {
       <div id="orderOut" hidden>
         <textarea id="orderText" rows="12" readonly></textarea>
         <div class="cta">
-          <button type="button" class="btn primary" id="copyOrder"><span data-ko>신청서 복사</span><span data-ja>コピー</span></button>
+          <button type="button" class="btn primary" id="sendOrder" hidden><span data-ko>신청서 보내기</span><span data-ja>送信する</span></button>
+          <button type="button" class="btn ghost" id="copyOrder"><span data-ko>신청서 복사</span><span data-ja>コピー</span></button>
           <a class="btn ghost" data-link="openchat" href="#"><span data-ko>오픈채팅 열기</span><span data-ja>オープンチャット</span></a>
           <a class="btn ghost" data-link="discord" href="#">Discord</a>
           <a class="btn ghost" id="mailOrder" href="#"><span data-ko>메일로 보내기</span><span data-ja>メールで送る</span></a>
         </div>
         <p class="warn no-channel" hidden><span data-ko>접수 채널(오픈채팅·디스코드)을 준비 중입니다. 곧 열립니다!</span><span data-ja>受付チャンネルは準備中です。</span></p>
+        <p class="opts sendmsg" id="orderSent" hidden></p>
         <p class="opts" id="copied" hidden><span data-ko>복사됐습니다. 붙여넣고 구매 내역 캡처와 함께 보내 주세요.</span><span data-ja>コピーしました。貼り付けて購入履歴と一緒に送ってください。</span></p>
       </div>
     </form>
@@ -360,6 +372,38 @@ window.BIZ = {
       <div class="card"><h3>お支払いはプレビュー確認後</h3><p>作業後、透かし入りのレンダーと容量レポートを先にお送りします。ご納得いただけたらお支払い、確認後にパッケージをお渡しします。</p></div>
       <div class="card"><h3>お支払い方法</h3><p>海外: PayPal<br>お支払い情報は見積確定後に個別にご案内します。</p></div>
       <div class="card"><h3>キャンセル・返金</h3><p>お支払い前はいつでも無料でキャンセルできます。お支払い・納品後はオーダーメイドのデジタルデータのため返金できませんが、不具合は無償で修正します。</p></div>
+    </div>
+  </section>
+
+  <section id="contact">
+    <h2 data-ko>문의</h2><h2 data-ja>お問い合わせ</h2>
+    <p class="sub" data-ko>견적 전 질문, 보유 여부 확인, 툴 문의 등 무엇이든 보내 주세요. 적어 주신 이메일로 답장드립니다.</p>
+    <p class="sub" data-ja>ご質問はこちらから。ご入力のメールに返信します。</p>
+    <form id="contactForm" class="card form" autocomplete="off" onsubmit="return false">
+      <div class="row2">
+        <label><span data-ko>이름(닉네임)</span><span data-ja>お名前</span> *<input name="name" required maxlength="40"></label>
+        <label><span data-ko>답장받을 이메일</span><span data-ja>返信先メール</span> *<input name="email" type="email" required maxlength="120"></label>
+      </div>
+      <label><span data-ko>내용</span><span data-ja>内容</span> *<textarea name="message" rows="5" required maxlength="3000"></textarea></label>
+      <input type="checkbox" name="botcheck" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <label class="pick"><input type="checkbox" name="agree" required> <span data-ko><a href="#privacy">개인정보 수집·이용</a>(이름·이메일·문의 내용, 답변 목적)에 동의합니다.</span><span data-ja><a href="#privacy">個人情報の収集・利用</a>に同意します。</span></label>
+      <div class="cta"><button type="button" class="btn primary" id="sendContact"><span data-ko>문의 보내기</span><span data-ja>送信</span></button></div>
+      <p class="opts sendmsg" id="contactSent" hidden></p>
+    </form>
+  </section>
+
+  <section id="privacy">
+    <h2 data-ko>개인정보 처리방침</h2><h2 data-ja>個人情報の取り扱い</h2>
+    <div class="card policy" data-ko>
+      <p><b>수집 항목</b> 이름(닉네임), 이메일 또는 디스코드 ID, 신청·문의 내용, (결제 시) 입금자명</p>
+      <p><b>목적</b> 견적 안내, 작업 진행 연락, 대금 확인, 문의 답변</p>
+      <p><b>보관 기간</b> 문의만 한 경우 답변 후 3개월 안에 삭제합니다. 거래가 이뤄진 경우 전자상거래법에 따라 계약·대금결제 기록은 5년, 소비자 불만·분쟁 기록은 3년 보관한 뒤 삭제합니다</p>
+      <p><b>처리 위탁</b> 사이트 신청서·문의 내용은 메일 전송 서비스(Web3Forms)를 거쳐 판매자 이메일로 전달됩니다. 사이트 자체에는 저장되지 않습니다</p>
+      <p><b>권리</b> 언제든 열람·정정·삭제를 요청할 수 있습니다 (위 문의 양식 이용)</p>
+      <p><b>개인정보 보호책임자</b> 정환동 (스타라이트 TCG)</p>
+    </div>
+    <div class="card policy" data-ja>
+      <p>収集項目：お名前、メールまたは Discord ID、ご依頼・お問い合わせ内容。目的：見積・作業連絡・お支払い確認・回答。お問い合わせのみの場合は回答後3か月以内に削除し、取引記録は法令に基づき保管します。フォーム内容はメール送信サービス（Web3Forms）を通じて販売者に届き、サイトには保存されません。削除のご依頼はお問い合わせフォームから。</p>
     </div>
   </section>
 
@@ -427,7 +471,7 @@ window.BIZ = {
     else a.style.display = 'none';
   });
   document.getElementById('y').textContent = new Date().getFullYear();
-  var B = window.BIZ || {}, rows = [['상호', B.name], ['대표', B.ceo], ['사업자등록번호', B.regNo], ['통신판매업 신고', B.mailOrderNo], ['주소', B.address], ['전화', B.phone], ['이메일', B.email]].filter(function(r){ return r[1]; });
+  var B = window.BIZ || {}, rows = [['서비스명', B.brand], ['상호', B.name], ['대표', B.ceo], ['사업자등록번호', B.regNo], ['통신판매업 신고', B.mailOrderNo], ['주소', B.address], ['전화', B.phone], ['이메일', B.email]].filter(function(r){ return r[1]; });
   var biz = document.getElementById('biz');
   rows.forEach(function(r){ var sp = document.createElement('span'); sp.textContent = r[0] + ' ' + r[1]; biz.appendChild(sp); });
   if (B.regNo) {
@@ -438,7 +482,7 @@ window.BIZ = {
   }
   // 신청서를 보낼 채널이 하나도 없으면 안내
   var L = window.LINKS || {};
-  if (!L.openchat && !L.discord && !L.mail) document.querySelectorAll('.no-channel').forEach(function(e){ e.hidden = false; });
+  if (!window.FORM_KEY && !L.openchat && !L.discord && !L.mail) document.querySelectorAll('.no-channel').forEach(function(e){ e.hidden = false; });
   function setLang(l){
     document.documentElement.lang = l;
     document.querySelectorAll('.lang button').forEach(function(b){ b.setAttribute('aria-pressed', String(b.dataset.lang === l)); });
@@ -448,6 +492,42 @@ window.BIZ = {
   var saved = null;
   try { saved = localStorage.getItem('ck-lang'); } catch(e) {}
   setLang(saved || ((navigator.language || '').indexOf('ja') === 0 ? 'ja' : 'ko'));
+})();
+
+// Web3Forms 전송 (공통)
+window.ckSend = function(data, msgEl, btn){
+  var ja = document.documentElement.lang === 'ja';
+  msgEl.hidden = false; msgEl.className = 'opts sendmsg'; msgEl.textContent = ja ? '送信中…' : '보내는 중…';
+  var body = { access_key: window.FORM_KEY, subject: data.subject, from_name: data.from_name, message: data.message, botcheck: '' };
+  if (/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(data.contact || '')) body.replyto = data.contact;
+  else if (data.contact) body.contact = data.contact;
+  fetch('https://api.web3forms.com/submit', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' }, body: JSON.stringify(body) })
+    .then(function(r){ return r.json(); })
+    .then(function(j){
+      if (!j.success) throw new Error(j.message || 'fail');
+      msgEl.className = 'opts sendmsg ok';
+      msgEl.textContent = ja ? '送信しました。ご連絡先に返信します。' : '전송됐습니다! 적어 주신 연락처로 답장드릴게요.';
+    })
+    .catch(function(){
+      msgEl.className = 'warn sendmsg';
+      msgEl.textContent = ja ? '送信に失敗しました。時間をおいて再度お試しください。' : '전송에 실패했습니다. 잠시 후 다시 시도해 주세요.';
+      if (btn) btn.disabled = false;
+    });
+};
+(function(){
+  var c = document.getElementById('contactForm');
+  if (!c) return;
+  if (!window.FORM_KEY) {
+    document.getElementById('contact').style.display = 'none';
+    document.querySelectorAll('a[href="#contact"]').forEach(function(a){ a.style.display = 'none'; });
+    return;
+  }
+  document.getElementById('sendContact').addEventListener('click', function(){
+    if (!c.checkValidity()) { c.reportValidity(); return; }
+    if (c.botcheck.checked) return;
+    this.disabled = true;
+    window.ckSend({ subject: '[Closet Kit 문의] ' + c.name.value.trim(), from_name: c.name.value.trim(), contact: c.email.value.trim(), message: c.message.value.trim() }, document.getElementById('contactSent'), this);
+  });
 })();
 // 신청서: 서버 없이 브라우저 안에서만 견적 계산 + 신청서 텍스트 생성 (아무것도 저장/전송하지 않음)
 (function(){
@@ -505,6 +585,14 @@ window.BIZ = {
     document.getElementById('mailOrder').style.display = mail ? '' : 'none';
     document.getElementById('mailOrder').href = mail ? mail + '?subject=' + encodeURIComponent('[Closet Kit 신청] ' + f.nick.value.trim()) + '&body=' + encodeURIComponent(txt) : '#';
     document.getElementById('orderText').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  });
+
+  document.getElementById('sendOrder').hidden = !window.FORM_KEY;
+  document.getElementById('sendOrder').addEventListener('click', function(){
+    var btn = this;
+    btn.disabled = true;
+    window.ckSend({ subject: '[Closet Kit 신청] ' + f.nick.value.trim(), from_name: f.nick.value.trim(), contact: f.contact.value.trim(), message: document.getElementById('orderText').value },
+      document.getElementById('orderSent'), btn);
   });
 
   document.getElementById('copyOrder').addEventListener('click', function(){
